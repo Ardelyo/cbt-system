@@ -21,31 +21,40 @@
 
     <main class="test-main-container">
         <section class="question-panel">
-            <div class="question-header">
-                <h2>Soal No. <span id="question-number">1</span></h2>
+            <div class="question-container">
+                <div class="question-header">
+                    <h2>Soal No. <span id="question-number">1</span></h2>
+                    <div class="form-group" style="margin-bottom: 0; display:flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="flag-question" style="width: auto;">
+                        <label for="flag-question" style="margin-bottom: 0; font-weight: 500;">Ragu-ragu (Tandai untuk ditinjau)</label>
+                    </div>
+                </div>
+                <article class="question-content" id="question-text"></article>
+                <div class="answer-options" id="answer-options"></div>
             </div>
-            <article class="question-content" id="question-text"></article>
-            <div class="answer-options" id="answer-options"></div>
         </section>
 
         <aside class="navigation-panel">
-            <div class="nav-header"><h3>Navigasi Soal</h3></div>
+            <h3 class="nav-header">Navigasi Soal</h3>
             <div id="question-grid" class="question-grid"></div>
             <div class="test-controls">
-                <button id="btn-prev" class="btn btn-secondary">Sebelumnya</button>
-                <button id="btn-next" class="btn btn-primary">Selanjutnya</button>
+                <div class="test-controls-nav">
+                    <button id="btn-prev" class="btn btn-secondary">Sebelumnya</button>
+                    <button id="btn-next" class="btn btn-primary">Selanjutnya</button>
+                </div>
                 <button id="btn-finish" class="btn btn-danger">Selesaikan Ujian</button>
             </div>
         </aside>
     </main>
 
+    <!-- Modals -->
     <div id="finish-modal" class="modal-overlay">
         <div class="modal-content">
             <h3>Konfirmasi</h3>
             <p>Apakah Anda yakin ingin menyelesaikan ujian? Jawaban tidak dapat diubah lagi.</p>
             <div class="modal-actions">
                 <button class="btn btn-secondary" id="cancel-finish-btn">Batal</button>
-                <button class="btn btn-primary" id="confirm-finish-btn">Ya, Selesaikan</button>
+                <button class="btn btn-danger" id="confirm-finish-btn">Ya, Selesaikan</button>
             </div>
         </div>
     </div>
@@ -53,7 +62,7 @@
     <div id="cheat-warning-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="color: var(--danger);">PERINGATAN!</h3>
-            <p>Aktivitas mencurigakan terdeteksi (meninggalkan halaman ujian). Harap tetap fokus pada halaman ini.</p>
+            <p>Aktivitas mencurigakan terdeteksi (meninggalkan halaman ujian). Harap tetap fokus pada halaman ini. Pelanggaran akan dicatat.</p>
             <div class="modal-actions">
                 <button class="btn btn-primary" id="ack-warning-btn">Saya Mengerti</button>
             </div>
