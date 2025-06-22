@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian Berlangsung</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="test-page">
+
+    <!-- Header Ujian -->
+    <header class="test-header">
+        <div class="header-info">
+            <h1 class="header-title" id="test-title">Ujian Matematika Dasar</h1>
+            <span class="student-name">Siswa: Budi Santoso</span>
+        </div>
+        <div class="header-timer">
+            <span>Sisa Waktu:</span>
+            <div id="timer" class="timer-display">--:--</div>
+        </div>
+    </header>
+
+    <!-- Konten Utama Ujian -->
+    <main class="test-main-container">
+
+        <!-- Panel Soal -->
+        <section class="question-panel">
+            <div class="question-header">
+                <h2>Soal No. <span id="question-number">1</span></h2>
+            </div>
+            <article class="question-content" id="question-text">
+                <p>Memuat soal...</p>
+            </article>
+            <div class="answer-options" id="answer-options">
+                <!-- Opsi jawaban akan di-generate oleh JS -->
+            </div>
+        </section>
+
+        <!-- Panel Navigasi & Kontrol -->
+        <aside class="navigation-panel">
+            <div class="nav-header">
+                <h3>Navigasi Soal</h3>
+            </div>
+            <div id="question-grid" class="question-grid">
+                <!-- Tombol navigasi soal akan di-generate oleh JS -->
+            </div>
+            <div class="test-controls">
+                <button id="btn-prev" class="btn btn-secondary">Sebelumnya</button>
+                <button id="btn-next" class="btn btn-primary">Selanjutnya</button>
+                <button id="btn-flag" class="btn btn-warning">Ragu-ragu</button>
+                <button id="btn-finish" class="btn btn-danger">Selesaikan Ujian</button>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Modal Konfirmasi Selesai Ujian -->
+    <div id="finish-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Konfirmasi</h3>
+            <p>Apakah Anda yakin ingin menyelesaikan ujian? Jawaban yang sudah dikirim tidak dapat diubah kembali.</p>
+            <div class="modal-actions">
+                <button id="confirm-finish-btn" class="btn btn-primary">Ya, Selesaikan</button>
+                <button id="cancel-finish-btn" class="btn btn-secondary">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Peringatan Kecurangan -->
+    <div id="cheat-warning-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color: var(--danger);">PERINGATAN!</h3>
+            <p>Aktivitas mencurigakan terdeteksi (meninggalkan halaman ujian). Pelanggaran berulang akan menyebabkan ujian Anda dihentikan secara otomatis. Harap tetap fokus pada halaman ini.</p>
+            <div class="modal-actions">
+                <button id="ack-warning-btn" class="btn btn-primary">Saya Mengerti</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
