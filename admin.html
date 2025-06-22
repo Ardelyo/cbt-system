@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - CBT System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            CBT ADMIN
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="active"><a href="#">Dashboard</a></li>
+                <li><a href="#">Manajemen Ujian</a></li>
+                <li><a href="#">Bank Soal</a></li>
+                <li><a href="#">Manajemen Siswa</a></li>
+                <li><a href="#">Hasil Ujian</a></li>
+                <li><a href="#">Pengaturan</a></li>
+                <li><a href="#" id="logout-btn">Keluar</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="admin-main-content">
+        <header class="admin-header">
+            <h1>Dashboard</h1>
+            <div class="admin-profile">
+                <span>Admin Utama</span>
+            </div>
+        </header>
+
+        <section class="content-area">
+            <!-- Kartu Statistik -->
+            <div class="stats-cards">
+                <div class="card">
+                    <h3>Siswa Aktif</h3>
+                    <p>1,204</p>
+                </div>
+                <div class="card">
+                    <h3>Ujian Berlangsung</h3>
+                    <p>3</p>
+                </div>
+                <div class="card">
+                    <h3>Total Soal</h3>
+                    <p>5,830</p>
+                </div>
+                 <div class="card">
+                    <h3>Peringatan</h3>
+                    <p>2</p>
+                </div>
+            </div>
+
+            <!-- Tabel Ujian Berlangsung (Live Proctoring) -->
+            <div class="live-proctoring-panel">
+                <h2>Pengawasan Ujian Langsung</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Ujian</th>
+                            <th>Siswa</th>
+                            <th>Waktu Mulai</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Fisika Lanjutan</td>
+                            <td>Citra Lestari</td>
+                            <td>10:00</td>
+                            <td><span class="status-warning">Pindah Tab (2x)</span></td>
+                            <td><button class="btn btn-danger btn-sm">Hentikan</button></td>
+                        </tr>
+                        <tr>
+                            <td>Biologi Sel</td>
+                            <td>Agus Wijaya</td>
+                            <td>10:02</td>
+                            <td><span class="status-ok">Mengerjakan</span></td>
+                            <td></td>
+                        </tr>
+                         <tr>
+                            <td>Matematika Dasar</td>
+                            <td>Budi Santoso</td>
+                            <td>10:05</td>
+                            <td><span class="status-ok">Mengerjakan</span></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Fisika Lanjutan</td>
+                            <td>Rina Amelia</td>
+                            <td>-</td>
+                            <td><span class="status-danger">Terputus</span></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Kimia Organik</td>
+                            <td>Dewi Anggraini</td>
+                            <td>-</td>
+                            <td><span class="status-ok">Menunggu</span></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>
