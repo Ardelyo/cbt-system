@@ -23,13 +23,14 @@ a:hover { color: var(--primary-blue); }
 
 /* === UTILITY & COMPONENT STYLES === */
 .btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
-.btn:active { transform: scale(0.98); }
+.btn:disabled { background-color: #ccc; cursor: not-allowed; }
+.btn:active:not(:disabled) { transform: scale(0.98); }
 .btn-primary { background-color: var(--primary-blue); color: var(--white); }
-.btn-primary:hover { background-color: #0b3a82; }
+.btn-primary:hover:not(:disabled) { background-color: #0b3a82; }
 .btn-secondary { background-color: #B0BEC5; color: var(--text-dark); }
-.btn-secondary:hover { background-color: #90A4AE; }
+.btn-secondary:hover:not(:disabled) { background-color: #90A4AE; }
 .btn-danger { background-color: var(--danger); color: var(--white); }
-.btn-danger:hover { background-color: #d32f2f; }
+.btn-danger:hover:not(:disabled) { background-color: #d32f2f; }
 .btn-sm { padding: 5px 10px; font-size: 12px; }
 .card { background-color: var(--white); border-radius: 12px; padding: 25px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
 .form-group { margin-bottom: 20px; }
