@@ -1,5 +1,5 @@
 // ===================================================================================
-//  CBT SYSTEM - PURE JAVASCRIPT & LOCALSTORAGE
+//  CBT SYSTEM - PURE JAVASCRIPT & LOCALSTORAGE (Corrected Version)
 //  This is the single source of truth for all application logic.
 // ===================================================================================
 
@@ -55,13 +55,12 @@ const Auth = {
         }
         if (roles.length > 0 && !roles.includes(user.role)) {
             alert('Anda tidak memiliki akses ke halaman ini.');
-            window.location.href = 'index.html';
+            window.location.href = 'admin.html';
         }
     }
 };
 
-// === GLOBAL HELPER FUNCTIONS (callable via onclick) ===
-// Placed at the top level to be accessible from dynamically generated HTML
+// === GLOBAL HELPER FUNCTIONS (callable via onclick from dynamic HTML) ===
 function deleteQuestion(questionId) {
     if (confirm('Anda yakin ingin menghapus soal ini? Ini akan menghapusnya dari semua ujian juga.')) {
         const db = DB.get();
@@ -70,7 +69,7 @@ function deleteQuestion(questionId) {
             test.questionIds = test.questionIds.filter(id => id !== questionId);
         });
         DB.save(db);
-        Views.renderQuestionBank(); // Re-render the view
+        Views.renderQuestionBank();
     }
 }
 
@@ -79,7 +78,7 @@ function deleteTest(testId) {
         const db = DB.get();
         db.tests = db.tests.filter(t => t.id !== testId);
         DB.save(db);
-        Views.renderTestManagement(); // Re-render the view
+        Views.renderTestManagement();
     }
 }
 
@@ -91,24 +90,22 @@ function promptToken(testId) {
     modal.classList.add('show');
     
     const form = document.getElementById('token-form');
-    // Clone and replace to remove old event listeners
-    const newForm = form.cloneNode(true);
+    const newForm = form.cloneNode(true); // Clone to remove old event listeners
     form.parentNode.replaceChild(newForm, form);
 
     newForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const inputToken = document.getElementById('test-token').value;
+        const inputToken = newForm.querySelector('#test-token').value;
         if (inputToken === test.token) {
             window.location.href = `ujian.html?testid=${testId}`;
         } else {
             alert('Token salah!');
         }
     });
-    document.getElementById('cancel-token-btn').addEventListener('click', () => modal.classList.remove('show'));
+    newForm.querySelector('#cancel-token-btn').addEventListener('click', () => modal.classList.remove('show'));
 }
 
 // === MODULE 3: VIEW RENDERERS ===
-// This object holds all functions that render content into the main area
 const Views = {
     _container: null,
     setContainer(container) { this._container = container; },
@@ -119,12 +116,11 @@ const Views = {
             <div class="content-header"><h1>Dashboard Admin</h1></div>
             <div class="card">
                 <h2>Statistik Sistem</h2>
-                <p>Total Pengguna: ${db.users.length}</p>
-                <p>Total Soal di Bank: ${db.questionBank.length}</p>
-                <p>Total Ujian Dibuat: ${db.tests.length}</p>
-                <p>Total Sesi Ujian Selesai: ${db.sessions.length}</p>
-            </div>
-        `;
+                <p><strong>Total Pengguna:</strong> ${db.users.length}</p>
+                <p><strong>Total Soal di Bank:</strong> ${db.questionBank.length}</p>
+                <p><strong>Total Ujian Dibuat:</strong> ${db.tests.length}</p>
+                <p><strong>Total Sesi Ujian Selesai:</strong> ${db.sessions.length}</p>
+            </div>`;
     },
 
     renderQuestionBank() {
@@ -159,7 +155,6 @@ const Views = {
                 </table>
             </div>`;
 
-        // Attach event listeners AFTER content is rendered
         document.getElementById('add-option-btn').addEventListener('click', () => {
             const container = document.getElementById('q-options-container');
             const index = container.children.length;
@@ -168,17 +163,11 @@ const Views = {
         
         document.getElementById('add-question-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const newQuestion = { 
-                id: `q${Date.now()}`,
-                subject: e.target['q-subject'].value, 
-                text: e.target['q-text'].value,
-                options: [...document.querySelectorAll('.option-text')].map(input => input.value), 
-                correct: parseInt(document.querySelector('input[name="correct-option"]:checked').value)
-            };
+            const newQuestion = { id: `q${Date.now()}`, subject: e.target['q-subject'].value, text: e.target['q-text'].value, options: [...document.querySelectorAll('.option-text')].map(input => input.value), correct: parseInt(document.querySelector('input[name="correct-option"]:checked').value) };
             const currentDb = DB.get();
             currentDb.questionBank.push(newQuestion);
             DB.save(currentDb);
-            this.renderQuestionBank(); // Re-render view
+            this.renderQuestionBank();
         });
     },
 
@@ -215,13 +204,7 @@ const Views = {
             e.preventDefault();
             const questionIds = [...document.querySelectorAll('input[name="questions"]:checked')].map(input => input.value);
             if (questionIds.length === 0) { alert('Pilih setidaknya satu soal!'); return; }
-            const newTest = { 
-                id: `test_${Date.now()}`, 
-                title: e.target['t-title'].value, 
-                duration: parseInt(e.target['t-duration'].value), 
-                token: e.target['t-token'].value, 
-                questionIds 
-            };
+            const newTest = { id: `test_${Date.now()}`, title: e.target['t-title'].value, duration: parseInt(e.target['t-duration'].value), token: e.target['t-token'].value, questionIds };
             const currentDb = DB.get();
             currentDb.tests.push(newTest);
             DB.save(currentDb);
@@ -238,12 +221,8 @@ const Views = {
             <tbody>${db.sessions.map(s => {
                 const user = db.users.find(u => u.id === s.userId) || { nama: 'N/A' };
                 const test = db.tests.find(t => t.id === s.testId) || { title: 'Ujian Dihapus' };
-                return `
-                <tr>
-                    <td>${user.nama}</td><td>${test.title}</td><td>${s.score}</td>
-                    <td>${new Date(s.completedAt).toLocaleString('id-ID')}</td>
-                    <td>${s.cheatingLogs.length > 0 ? `<span class="status-danger">${s.cheatingLogs.length} kali</span>` : '<span class="status-ok">Tidak ada</span>'}</td>
-                </tr>`}).join('')}
+                return `<tr><td>${user.nama}</td><td>${test.title}</td><td>${s.score}</td><td>${new Date(s.completedAt).toLocaleString('id-ID')}</td><td>${s.cheatingLogs.length > 0 ? `<span class="status-danger">${s.cheatingLogs.length} kali</span>` : '<span class="status-ok">Tidak ada</span>'}</td></tr>`
+            }).join('') || '<tr><td colspan="5" style="text-align:center;">Belum ada sesi ujian yang selesai.</td></tr>'}
             </tbody></table></div>`;
     },
 
@@ -257,7 +236,7 @@ const Views = {
                     <tr>
                         <td>${t.title}</td><td>${t.questionIds.length}</td><td>${t.duration} menit</td>
                         <td><button class="btn btn-primary" onclick="promptToken('${t.id}')">Kerjakan</button></td>
-                    </tr>`).join('')}
+                    </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;">Belum ada ujian yang tersedia.</td></tr>'}
                 </tbody></table>
             </div>`;
     },
@@ -273,7 +252,7 @@ const Views = {
                 ${mySessions.length > 0 ? mySessions.map(s => {
                     const test = db.tests.find(t => t.id === s.testId) || { title: 'Ujian Dihapus' };
                     return `<tr><td>${test.title}</td><td>${s.score}</td><td>${new Date(s.completedAt).toLocaleString('id-ID')}</td></tr>`
-                }).join('') : '<tr><td colspan="3">Anda belum mengerjakan ujian apapun.</td></tr>'}
+                }).join('') : '<tr><td colspan="3" style="text-align:center;">Anda belum mengerjakan ujian apapun.</td></tr>'}
             </tbody></table></div>`;
     }
 };
@@ -289,9 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 if (Auth.login(e.target.username.value, e.target.password.value)) {
                     window.location.href = 'admin.html';
-                } else {
-                    alert('Username atau password salah!');
-                }
+                } else { alert('Username atau password salah!'); }
             });
             break;
 
@@ -311,14 +288,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 ],
                 student: [
                     { name: 'Daftar Ujian', view: Views.renderStudentDashboard.bind(Views) },
+                    // THIS IS THE CORRECTED LINE
                     { name: 'Riwayat Ujian', view: Views.renderStudentHistory.bind(Views) }
                 ]
             };
             const sidebarNav = document.getElementById('sidebar-nav');
             sidebarNav.innerHTML = navConfig[user.role].map((item, index) => `<li class="${index === 0 ? 'active' : ''}" data-view-name="${item.name}"><a>${item.name}</a></li>`).join('');
-            
-            navConfig[user.role][0].view(); // Render initial view
-
+            navConfig[user.role][0].view();
             sidebarNav.addEventListener('click', e => {
                 const li = e.target.closest('li');
                 if (li) {
@@ -331,12 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         case 'page-ujian':
             Auth.protectPage(['student']);
-            // The rest of this logic is complex and self-contained
-            const state = {
-                test: null, questions: [], answers: [], currentQuestionIndex: 0,
-                timeLeft: 0, timerInterval: null, cheatingLogs: []
-            };
-
+            const state = { test: null, questions: [], answers: [], currentQuestionIndex: 0, timeLeft: 0, timerInterval: null, cheatingLogs: [] };
             const urlParams = new URLSearchParams(window.location.search);
             const testId = urlParams.get('testid');
             const db = DB.get();
@@ -345,7 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
             state.questions = state.test.questionIds.map(id => db.questionBank.find(q => q.id === id)).filter(Boolean);
             state.answers = new Array(state.questions.length).fill(null);
             state.timeLeft = state.test.duration * 60;
-            
             const userUjian = Auth.getCurrentUser();
             document.getElementById('test-title').textContent = state.test.title;
             document.getElementById('student-name').textContent = `Siswa: ${userUjian.nama}`;
@@ -354,9 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const q = state.questions[state.currentQuestionIndex];
                 document.getElementById('question-number').textContent = state.currentQuestionIndex + 1;
                 document.getElementById('question-text').textContent = q.text;
-                document.getElementById('answer-options').innerHTML = q.options.map((opt, i) =>
-                    `<div class="option"><input type="radio" id="opt${i}" name="answer" value="${i}" ${state.answers[state.currentQuestionIndex] === i ? 'checked' : ''}><label for="opt${i}">${String.fromCharCode(65 + i)}. ${opt}</label></div>`
-                ).join('');
+                document.getElementById('answer-options').innerHTML = q.options.map((opt, i) => `<div class="option"><input type="radio" id="opt${i}" name="answer" value="${i}" ${state.answers[state.currentQuestionIndex] === i ? 'checked' : ''}><label for="opt${i}">${String.fromCharCode(65 + i)}. ${opt}</label></div>`).join('');
                 document.querySelectorAll('input[name="answer"]').forEach(r => r.addEventListener('change', () => { state.answers[state.currentQuestionIndex] = parseInt(r.value); renderUjianNav(); }));
             };
             const renderUjianNav = () => {
@@ -376,11 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = `hasil.html?sessionid=${newSession.sessionId}`;
             };
             
-            // Initial render
-            renderUjianQuestion();
-            renderUjianNav();
-            
-            // Start Timer
+            renderUjianQuestion(); renderUjianNav();
             state.timerInterval = setInterval(() => {
                 state.timeLeft--;
                 const m = Math.floor(state.timeLeft / 60);
@@ -389,18 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (state.timeLeft <= 0) finishTest();
             }, 1000);
 
-            // Event Listeners
             document.getElementById('btn-next').addEventListener('click', () => { if(state.currentQuestionIndex < state.questions.length - 1) { state.currentQuestionIndex++; renderUjianQuestion(); renderUjianNav(); }});
             document.getElementById('btn-prev').addEventListener('click', () => { if(state.currentQuestionIndex > 0) { state.currentQuestionIndex--; renderUjianQuestion(); renderUjianNav(); }});
             document.getElementById('btn-finish').addEventListener('click', () => document.getElementById('finish-modal').classList.add('show'));
             document.getElementById('confirm-finish-btn').addEventListener('click', finishTest);
             document.getElementById('cancel-finish-btn').addEventListener('click', () => document.getElementById('finish-modal').classList.remove('show'));
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    state.cheatingLogs.push({ timestamp: new Date().toISOString(), event: 'Pindah Tab' });
-                    document.getElementById('cheat-warning-modal').classList.add('show');
-                }
-            });
+            document.addEventListener('visibilitychange', () => { if (document.hidden) { state.cheatingLogs.push({ timestamp: new Date().toISOString(), event: 'Pindah Tab' }); document.getElementById('cheat-warning-modal').classList.add('show'); } });
             document.getElementById('ack-warning-btn').addEventListener('click', () => document.getElementById('cheat-warning-modal').classList.remove('show'));
             window.addEventListener('contextmenu', e => e.preventDefault());
             break;
@@ -411,9 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const sessionId = resultUrlParams.get('sessionid');
             const resultDb = DB.get();
             const session = resultDb.sessions.find(s => s.sessionId === sessionId);
-            const test = resultDb.tests.find(t => t.id === session.testId);
+            if (!session) { alert("Sesi tidak ditemukan!"); window.location.href = 'admin.html'; return; }
+            const test = resultDb.tests.find(t => t.id === session.testId) || { title: 'Ujian Telah Dihapus' };
             const resultUser = resultDb.users.find(u => u.id === session.userId);
-            
             document.getElementById('result-container').innerHTML = `
                 <h1>Ujian Selesai!</h1><p>Terima kasih, ${resultUser.nama}, telah menyelesaikan ujian.</p><hr style="margin: 20px 0;">
                 <h2>${test.title}</h2><h3>Nilai Akhir Anda:</h3><h1 style="font-size: 48px; color: var(--primary-blue);">${session.score}</h1>
