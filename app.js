@@ -216,6 +216,8 @@ function promptToken(tId) {
     document.getElementById('token-modal-title').textContent = `Mulai Ujian: "${test.title}"`;
     modal.classList.add('show');
     const form = document.getElementById('token-form');
+    const tokenInputEl = form.querySelector('#test-token');
+    tokenInputEl.value = ''; // Clear previous input
 
     // Resetting form listeners by replacing the node is a simple way to avoid multiple submissions.
     const newForm = form.cloneNode(true);
@@ -259,9 +261,6 @@ const Views = {
             </div>`;
     },
 
-    renderQuestionBank() { /* ... implementation in main file ... */ },
-    renderTestManagement() { /* ... implementation in main file ... */ },
-    renderResults() { /* ... implementation in main file ... */ },
     renderSessionDetail(sessionId) {
         const db = DB.get();
         const session = db.sessions.find(s => s.sessionId === sessionId);
@@ -276,7 +275,7 @@ const Views = {
         const test = db.tests.find(t => t.id === session.testId) || { title: 'Ujian Dihapus' };
 
         const focusLossCount = session.performanceMetrics?.focusLossCount || 0;
-        const score = session.finalScore ?? "N/A"; // Use ?? for stricter null/undefined check
+        const score = session.finalScore ?? "N/A";
 
         this._container.innerHTML = `
             <div class="content-header">
@@ -327,9 +326,6 @@ const Views = {
             <ul style="list-style-type:none;padding-left:0;">${timelineHtml}</ul>`;
     },
     
-    renderAnswersTab(session, db) { /* ... implementation in main file ... */ },
-    renderCursorTab(session) { /* ... implementation in main file ... */ },
-    renderStudentDashboard() { /* ... implementation in main file ... */ },
     renderStudentHistory() {
         const user = Auth.getCurrentUser();
         const db = DB.get();
@@ -337,7 +333,6 @@ const Views = {
 
         const tableBody = mySessions.length > 0 ? mySessions.map(s => {
             const test = db.tests.find(t => t.id === s.testId) || { title: 'Ujian Dihapus' };
-            // FIX: Use 'finishTime' which is correctly set by the Tracker, not 'completedAt'.
             const finishTime = s.finishTime ? new Date(s.finishTime).toLocaleString('id-ID') : 'N/A';
             return `<tr>
                         <td>${test.title}</td>
@@ -383,22 +378,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pageId === 'page-dashboard') {
         Auth.protectPage();
         const user = Auth.getCurrentUser();
-        Views.setContainer(document.getElementById('main-content-area'));
+        const mainContentArea = document.getElementById('main-content-area');
+        Views.setContainer(mainContentArea);
         document.getElementById('user-display').textContent = user.nama;
         document.getElementById('logout-btn').addEventListener('click', Auth.logout);
-
-        const navConfig = {
-            admin: [
-                { name: 'Dashboard', view: Views.renderAdminDashboard.bind(Views), icon: Icons.dashboard },
-                { name: 'Bank Soal', view: () => { /* implementation below */ }, icon: Icons.bank },
-                { name: 'Manajemen Ujian', view: () => { /* implementation below */ }, icon: Icons.test },
-                { name: 'Hasil Ujian', view: Views.renderResults.bind(Views), icon: Icons.results }
-            ],
-            student: [
-                { name: 'Daftar Ujian', view: () => { /* implementation below */ }, icon: Icons.test },
-                { name: 'Riwayat Ujian', view: Views.renderStudentHistory.bind(Views), icon: Icons.results }
-            ]
-        };
 
         // --- FULL VIEW IMPLEMENTATIONS (Moved here for better organization) ---
         Views.renderQuestionBank = function() {
@@ -439,7 +422,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cdb = DB.get(); cdb.questionBank.push(newQuestion); DB.save(cdb); this.renderQuestionBank(); showToast('Soal berhasil disimpan.', 'success');
             });
         };
-        navConfig.admin[1].view = Views.renderQuestionBank.bind(Views);
         
         Views.renderTestManagement = function() {
             const db = DB.get();
@@ -475,7 +457,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cdb = DB.get(); cdb.tests.push(newTest); DB.save(cdb); this.renderTestManagement(); showToast('Ujian berhasil dibuat.', 'success');
             });
         };
-        navConfig.admin[2].view = Views.renderTestManagement.bind(Views);
         
         Views.renderResults = function() {
             const db = DB.get();
@@ -500,7 +481,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </table>
                 </div>`;
         };
-        navConfig.admin[3].view = Views.renderResults.bind(Views);
 
         Views.renderStudentDashboard = function() {
             const db = DB.get();
@@ -510,12 +490,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <table>
                         <thead><tr><th>Judul Ujian</th><th>Jumlah Soal</th><th>Durasi</th><th>Aksi</th></tr></thead>
                         <tbody>
-                            ${db.tests.map(t => `<tr><td>${t.title}</td><td>${t.questionIds.length}</td><td>${t.duration} menit</td><td><button class="btn btn-primary" onclick="promptToken('${t.id}')">Kerjakan</button></td></tr>`).join('') || '<tr><td colspan="4" style="text-align:center;">Belum ada ujian yang tersedia.</td></tr>'}
+                            ${db.tests.map(t => `<tr>
+                                                    <td>${t.title}</td>
+                                                    <td>${t.questionIds.length}</td>
+                                                    <td>${t.duration} menit</td>
+                                                    <td><button class="btn btn-primary kerjakan-btn" data-testid="${t.id}">Kerjakan</button></td>
+                                                </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;">Belum ada ujian yang tersedia.</td></tr>'}
                         </tbody>
                     </table>
                 </div>`;
         };
-        navConfig.student[0].view = Views.renderStudentDashboard.bind(Views);
         
         Views.renderAnswersTab = function(session, db) {
             const test = db.tests.find(t => t.id === session.testId);
@@ -552,7 +536,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const ctx = canvas.getContext('2d');
             const cursorTrack = session.cursorTrack || [];
             
-            // Draw heatmap
             cursorTrack.forEach(([_, x, y]) => {
                 ctx.fillStyle = 'rgba(255,0,0,0.05)';
                 ctx.beginPath();
@@ -564,12 +547,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const btn = e.target;
                 if (btn.disabled || cursorTrack.length === 0) return;
                 btn.disabled = true;
-
                 const cursor = document.getElementById('replay-cursor');
                 const progress = document.getElementById('replay-progress');
                 const containerRect = canvas.getBoundingClientRect();
                 cursor.style.display = 'block';
-
                 let i = 0;
                 function animate() {
                     if (i >= cursorTrack.length) {
@@ -581,16 +562,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     cursor.style.left = `${x - containerRect.left}px`;
                     cursor.style.top = `${y - containerRect.top}px`;
                     progress.value = (i / (cursorTrack.length - 1)) * 100;
-                    
                     const timeToNext = (i + 1 < cursorTrack.length) ? cursorTrack[i + 1][0] - t : 100;
                     i++;
-                    setTimeout(animate, timeToNext > 500 ? 500 : timeToNext); // Cap delay to 500ms
+                    setTimeout(animate, timeToNext > 500 ? 500 : timeToNext);
                 };
                 animate();
             });
         };
+
+        const navConfig = {
+            admin: [
+                { name: 'Dashboard', view: Views.renderAdminDashboard.bind(Views), icon: Icons.dashboard },
+                { name: 'Bank Soal', view: Views.renderQuestionBank.bind(Views), icon: Icons.bank },
+                { name: 'Manajemen Ujian', view: Views.renderTestManagement.bind(Views), icon: Icons.test },
+                { name: 'Hasil Ujian', view: Views.renderResults.bind(Views), icon: Icons.results }
+            ],
+            student: [
+                { name: 'Daftar Ujian', view: Views.renderStudentDashboard.bind(Views), icon: Icons.test },
+                { name: 'Riwayat Ujian', view: Views.renderStudentHistory.bind(Views), icon: Icons.results }
+            ]
+        };
         
-        // --- Setup Navigation ---
+        // --- Setup Navigation & Event Delegation ---
         const sidebarNav = document.getElementById('sidebar-nav');
         sidebarNav.innerHTML = navConfig[user.role].map((item, i) => `<li class="${i === 0 ? 'active' : ''}" data-view-name="${item.name}"><a>${item.icon} ${item.name}</a></li>`).join('');
         navConfig[user.role][0].view();
@@ -604,6 +597,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 viewFn();
             }
         });
+        
+        // --- ADDED: EVENT LISTENER FOR DYNAMIC CONTENT ---
+        mainContentArea.addEventListener('click', e => {
+            const kerjakanButton = e.target.closest('.kerjakan-btn');
+            if (kerjakanButton) {
+                const testId = kerjakanButton.dataset.testid;
+                promptToken(testId);
+            }
+        });
+
         return;
     }
 
